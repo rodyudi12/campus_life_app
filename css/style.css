@@ -1,0 +1,9 @@
+.hero {
+  height: 70vh;
+  background: url('../images/campus.jpg') no-repeat center center/cover;
+}
+.hero-text {
+  background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+  border-radius: 10px;
+  align-items: center;
+}
