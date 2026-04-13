@@ -1,9 +1,13 @@
+
+/* Create a hero and put the image*/
 .hero {
   height: 70vh;
   background: url('../images/campus.jpg') no-repeat center center/cover;
 }
+
+/* Create a background to the text, so it can be easily read by the user even with the background image*/
 .hero-text {
-  background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black */
+  background-color: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
   align-items: center;
 }
