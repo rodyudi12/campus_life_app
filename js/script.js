@@ -121,13 +121,14 @@ function displayEvents(events, title) {
 
 //Add item (future improvement I want to make this for just users that are logged in to add items)
 function addItem() {
-
+  const studentName = document.getElementById("studentName").value;
+  const studentEmail = document.getElementById("studentEmail").value;
   const name = document.getElementById("itemName").value;
   const price = document.getElementById("itemPrice").value;
   const desc = document.getElementById("itemDesc").value;
   const imageInput = document.getElementById("itemImage");
 
-  if (!name || !price || !desc || !imageInput) {
+  if (!studentName || !studentEmail || !name || !price || !desc || !imageInput) {
     alert("Please fill in all fields");
     return;
   }
@@ -137,6 +138,8 @@ function addItem() {
   reader.onload = function () {
 
     const item = {
+      studentName,
+      studentEmail,
       name,
       price,
       desc,
@@ -150,6 +153,8 @@ function addItem() {
 
     loadItems();
 
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentEmail").value = "";
     document.getElementById("itemName").value = "";
     document.getElementById("itemPrice").value = "";
     document.getElementById("itemDesc").value = "";
@@ -187,6 +192,8 @@ function loadItems() {
           ${item.image ? `<img src="${item.image}" class="img-fluid mb-2" alt="Item image">` : ""}
 
           <h5>${item.name}</h5>
+          <p><strong>Seller:</strong> ${item.studentName}</p>
+          <p><strong>Contact:</strong> ${item.studentEmail}</p>
           <p><strong>Price:</strong> $${item.price}</p>
           <p>${item.desc}</p>
 
