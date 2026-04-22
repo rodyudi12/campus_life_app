@@ -45,8 +45,9 @@ Campus Life Hub is a simple web application designed to help students explore ca
 ├── index.html
 ├── events.html
 ├── marketplace.html
-├── login.html
+├── dining.html
 ├── signup.html
+├── login.html
 │
 ├── css/
 │ └── style.css
