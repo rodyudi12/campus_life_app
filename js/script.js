@@ -99,8 +99,8 @@ async function loadCampusEvents() {
 async function loadTicketmasterEvents() {
   const container = document.getElementById("eventsContainer");
   container.innerHTML = "<p>Loading off-campus events...</p>";
-
-  const API_KEY = "YOUR_API_KEY_HERE"; // 🔥 replace later
+  
+  const API_KEY = "12TZi2CzmxG45UDsuoo43caXG6uqjFDG";
   const url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&city=St%20Louis&size=6`;
 
   try {

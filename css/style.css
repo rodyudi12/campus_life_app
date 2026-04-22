@@ -1,13 +1,96 @@
 
-/* Create a hero and put the image*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.navbar a {
+  text-decoration: none;
+}
+
 .hero {
   height: 70vh;
   background: url('../images/campus.jpg') no-repeat center center/cover;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  padding: 20px;
 }
 
-/* Create a background to the text, so it can be easily read by the user even with the background image*/
 .hero-text {
   background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 750px;
+  color: white;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.card img {
+  width: 100%;
   border-radius: 10px;
-  align-items: center;
+  object-fit: cover;
+}
+
+.btn {
+  border-radius: 8px;
+}
+
+footer {
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+
+  .hero {
+    height: 50vh;
+    padding: 15px;
+  }
+
+  .hero-text {
+    padding: 18px;
+  }
+
+  .hero-text h1 {
+    font-size: 22px;
+  }
+
+  .hero-text p {
+    font-size: 14px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .hero {
+    height: 45vh;
+  }
+
+  .hero-text {
+    padding: 15px;
+  }
+
+  .hero-text h1 {
+    font-size: 18px;
+  }
+
+  .hero-text p {
+    font-size: 13px;
+  }
+
+  .col-md-4 {
+    width: 100%;
+  }
 }
