@@ -1,19 +1,65 @@
-
-// EVENTS + MARKETPLACE APP
-
 document.addEventListener("DOMContentLoaded", () => {
 
+  // AUTH BUTTON (Login / Logout)
+  const authBtn = document.getElementById("authBtn");
+
+  if (authBtn) {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    if (user) {
+      authBtn.textContent = `Logout (${user.name})`;
+
+      authBtn.addEventListener("click", () => {
+        localStorage.removeItem("loggedInUser");
+        alert("Logged out!");
+        window.location.href = "login.html";
+      });
+
+    } else {
+      authBtn.textContent = "Login";
+
+      authBtn.addEventListener("click", () => {
+        window.location.href = "login.html";
+      });
+    }
+  }
+
+
+  // CHECK LOGIN (ONLY MARKETPLACE)
+  const marketContainer = document.getElementById("marketContainer");
+
+  if (marketContainer) {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+    if (!user) {
+      alert("You must be logged in to access the marketplace");
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Auto-fill user info
+    const nameInput = document.getElementById("studentName");
+    const emailInput = document.getElementById("studentEmail");
+
+    if (nameInput && emailInput) {
+      nameInput.value = user.name;
+      emailInput.value = user.email;
+
+      nameInput.readOnly = true;
+      emailInput.readOnly = true;
+    }
+  }
+
+
+  // EVENTS BUTTONS
   const campusBtn = document.getElementById("campusBtn");
   const ticketBtn = document.getElementById("ticketBtn");
 
-  if (campusBtn) {
-    campusBtn.addEventListener("click", loadCampusEvents);
-  }
+  if (campusBtn) campusBtn.addEventListener("click", loadCampusEvents);
+  if (ticketBtn) ticketBtn.addEventListener("click", loadTicketmasterEvents);
 
-  if (ticketBtn) {
-    ticketBtn.addEventListener("click", loadTicketmasterEvents);
-  }
 
+  // MARKETPLACE
   const addBtn = document.getElementById("addItemBtn");
 
   if (addBtn) {
@@ -21,8 +67,20 @@ document.addEventListener("DOMContentLoaded", () => {
     loadItems();
   }
 
+
+  // AUTH FORMS
+  const signupBtn = document.getElementById("signupBtn");
+  if (signupBtn) signupBtn.addEventListener("click", signupUser);
+
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) loginBtn.addEventListener("click", loginUser);
+
 });
-// Load campus events created in a json file (not an actual API)
+
+
+// EVENTS
+
+// On-campus
 async function loadCampusEvents() {
   const container = document.getElementById("eventsContainer");
   container.innerHTML = "<p>Loading campus events...</p>";
@@ -30,19 +88,19 @@ async function loadCampusEvents() {
   try {
     const response = await fetch("data/campusEvents.json");
     const events = await response.json();
-
     displayEvents(events, "On-Campus Events");
-
-  } catch (error) {
+  } catch {
     container.innerHTML = "<p>Failed to load campus events.</p>";
   }
 }
-// Load the API from ticketmasters with just the first 6
+
+
+// Ticketmaster
 async function loadTicketmasterEvents() {
   const container = document.getElementById("eventsContainer");
   container.innerHTML = "<p>Loading off-campus events...</p>";
 
-  const API_KEY = "12TZi2CzmxG45UDsuoo43caXG6uqjFDG";
+  const API_KEY = "YOUR_API_KEY_HERE"; // 🔥 replace later
   const url = `https://app.ticketmaster.com/discovery/v2/events.json?apikey=${API_KEY}&city=St%20Louis&size=6`;
 
   try {
@@ -51,99 +109,79 @@ async function loadTicketmasterEvents() {
 
     const events = data._embedded?.events || [];
 
-    const formattedEvents = events.map(event => {
-
-      const [year, month, day] = event.dates.start.localDate.split("-");
-      const fixedDate = new Date(year, month - 1, day);
+    const formatted = events.map(event => {
+      const [y, m, d] = event.dates.start.localDate.split("-");
+      const date = new Date(y, m - 1, d);
 
       return {
         name: event.name,
-        date: fixedDate.toLocaleDateString(),
-        location: event._embedded?.venues?.[0]?.name || "Unknown Location",
+        date: date.toLocaleDateString(),
+        location: event._embedded?.venues?.[0]?.name || "Unknown",
         url: event.url
       };
     });
 
-    displayEvents(formattedEvents, "Off-Campus Events");
+    displayEvents(formatted, "Off-Campus Events");
 
-  } catch (error) {
-    container.innerHTML = "<p>Failed to load off-campus events.</p>";
+  } catch {
+    container.innerHTML = "<p>Failed to load events.</p>";
   }
 }
-//Print the event
-function displayEvents(events, title) {
 
+
+// Display events
+function displayEvents(events, title) {
   const container = document.getElementById("eventsContainer");
   if (!container) return;
 
-  if (!events || events.length === 0) {
-    container.innerHTML = `
-      <div class="col-12 text-center">
-        <h3>${title}</h3>
-        <p>No events found.</p>
-      </div>
-    `;
+  if (!events.length) {
+    container.innerHTML = `<p class="text-center">No events found</p>`;
     return;
   }
 
-  container.innerHTML = `
-    <div class="col-12">
-      <h3 class="mb-3 text-center">${title}</h3>
-    </div>
-  `;
+  container.innerHTML = `<h3 class="text-center mb-3">${title}</h3>`;
 
   events.forEach(event => {
     container.innerHTML += `
       <div class="col-md-4 mb-3">
-        <div class="card shadow-sm h-100 p-3 d-flex flex-column">
-
+        <div class="card p-3 h-100">
           <h5>${event.name}</h5>
-
           <p><strong>Date:</strong> ${event.date}</p>
-
-          ${event.time ? `<p><strong>Time:</strong> ${event.time}</p>` : ""}
-
           <p><strong>Location:</strong> ${event.location}</p>
-
-          ${event.url ? `
-            <a href="${event.url}" target="_blank" class="btn btn-outline-primary mt-auto">
-              View Event
-            </a>
-          ` : ""}
-
+          ${event.url ? `<a href="${event.url}" target="_blank" class="btn btn-outline-primary mt-auto">View Event</a>` : ""}
         </div>
       </div>
     `;
   });
 }
 
-// Marketplace
 
-//Add item (future improvement I want to make this for just users that are logged in to add items)
+// MARKETPLACE
+
 function addItem() {
-  const studentName = document.getElementById("studentName").value;
-  const studentEmail = document.getElementById("studentEmail").value;
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
   const name = document.getElementById("itemName").value;
   const price = document.getElementById("itemPrice").value;
   const desc = document.getElementById("itemDesc").value;
   const imageInput = document.getElementById("itemImage");
 
-  if (!studentName || !studentEmail || !name || !price || !desc || !imageInput) {
-    alert("Please fill in all fields");
+  if (!name || !price || !desc) {
+    alert("Fill all fields");
     return;
   }
 
   const reader = new FileReader();
 
-  reader.onload = function () {
+  reader.onload = () => {
 
     const item = {
-      studentName,
-      studentEmail,
       name,
       price,
       desc,
-      image: reader.result 
+      image: reader.result,
+      ownerEmail: user.email,
+      ownerName: user.name
     };
 
     let items = JSON.parse(localStorage.getItem("marketItems")) || [];
@@ -153,8 +191,7 @@ function addItem() {
 
     loadItems();
 
-    document.getElementById("studentName").value = "";
-    document.getElementById("studentEmail").value = "";
+    // reset form
     document.getElementById("itemName").value = "";
     document.getElementById("itemPrice").value = "";
     document.getElementById("itemDesc").value = "";
@@ -168,38 +205,38 @@ function addItem() {
   }
 }
 
-//Load items and save them
-function loadItems() {
 
+function loadItems() {
   const container = document.getElementById("marketContainer");
   if (!container) return;
 
   const items = JSON.parse(localStorage.getItem("marketItems")) || [];
+  const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
   container.innerHTML = "";
 
-  if (items.length === 0) {
-    container.innerHTML = "<p class='text-center'>No items yet.</p>";
+  if (!items.length) {
+    container.innerHTML = "<p class='text-center'>No items yet</p>";
     return;
   }
 
   items.forEach((item, index) => {
 
+    const canDelete = currentUser && currentUser.email === item.ownerEmail;
+
     container.innerHTML += `
       <div class="col-md-4">
-        <div class="card shadow-sm p-3 h-100">
+        <div class="card p-3 h-100">
 
-          ${item.image ? `<img src="${item.image}" class="img-fluid mb-2" alt="Item image">` : ""}
+          ${item.image ? `<img src="${item.image}" class="img-fluid mb-2">` : ""}
 
           <h5>${item.name}</h5>
-          <p><strong>Seller:</strong> ${item.studentName}</p>
-          <p><strong>Contact:</strong> ${item.studentEmail}</p>
+          <p><strong>Seller:</strong> ${item.ownerName}</p>
+          <p><strong>Email:</strong> ${item.ownerEmail}</p>
           <p><strong>Price:</strong> $${item.price}</p>
           <p>${item.desc}</p>
 
-          <button class="btn btn-danger btn-sm mt-2" onclick="deleteItem(${index})">
-            Delete
-          </button>
+          ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteItem(${index})">Delete</button>` : ""}
 
         </div>
       </div>
@@ -207,14 +244,50 @@ function loadItems() {
   });
 }
 
-// Delete function to delete the item from the marketplace (future improvement: Just people who posted the item can delete them)
+
 function deleteItem(index) {
-
   let items = JSON.parse(localStorage.getItem("marketItems")) || [];
-
   items.splice(index, 1);
-
   localStorage.setItem("marketItems", JSON.stringify(items));
-
   loadItems();
+}
+
+
+// AUTH SYSTEM
+
+function signupUser() {
+  const name = document.getElementById("signupName").value;
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+
+  if (!name || !email || !password) {
+    alert("Fill all fields");
+    return;
+  }
+
+  localStorage.setItem("user", JSON.stringify({ name, email, password }));
+
+  alert("Account created!");
+  window.location.href = "login.html";
+}
+
+
+function loginUser() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+    alert("No account found");
+    return;
+  }
+
+  if (email === user.email && password === user.password) {
+    localStorage.setItem("loggedInUser", JSON.stringify(user));
+    alert("Login successful!");
+    window.location.href = "index.html";
+  } else {
+    alert("Invalid credentials");
+  }
 }
